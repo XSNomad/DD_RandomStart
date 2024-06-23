@@ -20,4 +20,16 @@ This mod provides a randomized starting experience for the game Darkest Dungeon 
 # Requirements
 * This mod requires the base game Darkest Dungeon installed on your system.
 * Ensure the RandomStart.exe is correctly placed in the Mods/RandomStart directory before running.
-* Only the RandomStart.exe and the project.xml file should be here before executing. 
+* Only the RandomStart.exe and the project.xml file should be here before executing.
+
+* .NET 6.0 Framework:
+  * This program requires the .NET 6.0 Framework to be installed on your system. If you do not have it installed, you can download it from the official Microsoft website.
+# Installing .NET 6.0 Framework
+* Download .NET 6.0:
+  * Visit the [Microsoft .NET Download page](https://dotnet.microsoft.com/download/dotnet/6.0)
+* Choose Your OS:
+  * Select your operating system (Windows, macOS, or Linux) and download the installer.
+* Install .NET 6.0:
+  * Run the downloaded installer and follow the on-screen instructions to install .NET 6.0 Framework on your system.
+* Verify Installation:
+  * Once installed, open a command prompt or terminal and type dotnet --version to verify that .NET 6.0 Framework is correctly installed.
