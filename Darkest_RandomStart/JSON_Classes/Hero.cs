@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.IO;
 
 namespace Darkest_RandomStart
 {
@@ -19,7 +20,7 @@ namespace Darkest_RandomStart
         };
         public static readonly string[] tankClasses = { "crusader", "hellion", "leper", "man_at_arms" };
         public static readonly string[] healerClasses = { "vestal", "occultist" };
-
+        public string secondHero; 
         [JsonProperty("roster.status")]
         public int RosterStatus { get; set; }
 
@@ -48,16 +49,29 @@ namespace Darkest_RandomStart
 
         [JsonIgnore]
         public QuirkManager quirkManager = new();
-        public Hero()
+
+        public Hero(string hero)
+        {
+            if (hero=="")
+            {
+                heroClass = InitializeRandomHeros();
+            }
+            else
+            {
+                heroClass = hero;
+            }
+            InitializeDefaults();
+        }
+
+        private void InitializeDefaults()
         {
             RosterStatus = 1;
             RosterMissingDuration = 0;
             RosterStoryVariation = 0;
             RosterMissingFrom = 0;
             RosterBuildingName = "";
-            heroClass = GetRandomHeroClass();
             resolveXp = 0;
-            stress = 0;
+            stress = 10;
             weapon_rank = 0;
             armour_rank = 0;
             affliction_severity = 0;
@@ -66,13 +80,12 @@ namespace Darkest_RandomStart
             skills = new(heroClass);
             actor = new(heroClass);
             trinkets = new();
-
         }
-        private static string GetRandomHeroClass()
+        private static string InitializeRandomHeros()
         {
-            if (!Program.TankSelected)
+            if (!HeroRankManager.TankSelected)
             {
-                Program.TankSelected = true;
+                HeroRankManager.TankSelected = true;
                 return tankClasses[random.Next(tankClasses.Length)];
             }
             else

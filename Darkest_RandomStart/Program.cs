@@ -1,62 +1,69 @@
 ﻿using Darkest_RandomStart.Darkest_RandomStart;
 using Darkest_RandomStart.SC;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Darkest_RandomStart
 {
     class Program
     {
-        public static bool TankSelected = false;
-        public static int heroCounter = 0;
-        
         static void Main(string[] args)
         {
-            // Generate sample hero data and save to JSON
-            GenerateSampleHeroes();
+            bool party = args.Length > 0 && args[0].Equals("-party", StringComparison.OrdinalIgnoreCase);
 
-            // Perform StageCoach logic
-            StageCoach();
+            GenerateHeroes(party);
         }
-
-        static void GenerateSampleHeroes()
+        static void GenerateHeroes(bool party)
         {
-            // Create a new RootObject instance and populate it with sample data
             RootObject root = new();
-            // Adding sample hero data (similar structure to the provided JSON)
-            root.data.heroes = new Dictionary<string, Hero>
+            List<string> firstTwoHeroes = new();
+            List<string> lastTwoHeroes = new();
+
+            if (party)
             {
-                ["1"] = new Hero(),
-                ["2"] = new Hero()
-            };
+                PartyManager.GetHerosFromParty(out firstTwoHeroes, out lastTwoHeroes);
+            }
 
-            // Serialize the root object to JSON
+            PopulateHeroData(root, party, firstTwoHeroes);
+
             string json = JsonConvert.SerializeObject(root, Formatting.Indented);
-
-            // Save JSON to a file using FileFunctions
             string filePath = @"persist.roster.json";
             FileFunctions.SaveJsonToFile(json, filePath, "scripts/starting_save");
             Console.WriteLine("JSON file has been generated and saved to: " + filePath);
-        }
 
-        public static int GetNextHeroRank()
+            StageCoach(lastTwoHeroes);
+        }
+        static void PopulateHeroData(RootObject root, bool party, List<string> firstTwoHeroes)
         {
-            return ++heroCounter;
-        }
+            root.data.heroes = new Dictionary<string, Hero>();
 
-        static void StageCoach()
+            if (party && firstTwoHeroes.Count > 0)
+            {
+                for (int i = 0; i < firstTwoHeroes.Count && i < 2; i++)
+                {
+                    root.data.heroes[(i + 1).ToString()] = new Hero(firstTwoHeroes[i]);
+                }
+            }
+            else
+            {
+                root.data.heroes["1"] = new Hero("");
+                root.data.heroes["2"] = new Hero("");
+            }
+        }
+        static void StageCoach(List<string> heroes)
         {
             try
             {
-                // Read JSON file using FileFunctions
                 string fileName = "stage_coach.building.json";
                 string readDirectory = Path.Combine("..", "..", "campaign", "town", "buildings", "stage_coach");
                 string writeDirectory = Path.Combine("campaign", "town", "buildings", "stage_coach");
+
                 SC.RootObject rootObject = FileFunctions.ReadJsonFile<SC.RootObject>(fileName, readDirectory);
+                List<string> combinedClasses = heroes.Count > 0 ? heroes : RandomizeHeroClasses();
 
-                // Randomize first_hero_classes
-                List<string> combinedClasses = RandomizeHeroClasses();
-
-                // Update the first_hero_classes in the first store's data
                 if (rootObject.Data.Stores.Count > 0)
                 {
                     rootObject.Data.Stores[0].Data.FirstHeroClasses = combinedClasses;
@@ -66,12 +73,8 @@ namespace Darkest_RandomStart
                     throw new Exception("No stores found in the JSON data.");
                 }
 
-                // Serialize RootObject back to JSON
                 string modifiedJson = JsonConvert.SerializeObject(rootObject, Formatting.Indented);
-
-                // Save modified JSON to a file using FileFunctions
                 FileFunctions.SaveJsonToFile(modifiedJson, fileName, writeDirectory);
-
                 Console.WriteLine("JSON file has been updated and saved to the new location.");
             }
             catch (Exception ex)
@@ -88,7 +91,6 @@ namespace Darkest_RandomStart
             Random random = new();
             List<string> combinedClasses = new();
 
-            // Select one hero class and one healer class randomly
             if (heroClasses.Count > 0)
             {
                 combinedClasses.Add(heroClasses[random.Next(heroClasses.Count)]);

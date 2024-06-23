@@ -28,7 +28,7 @@ namespace Darkest_RandomStart
                 { "grave_robber", 20 },
                 { "occultist", 19 },
                 { "leper", 35 },
-                { "bounty_hunter", 20 },
+                { "bounty_hunter", 25 },
                 { "jester", 19 },
                 { "houndmaster", 21 },
                 { "abomination", 26 },
@@ -41,7 +41,7 @@ namespace Darkest_RandomStart
             name_id = GetActorName();
             current_hp = HeroSetup[heroClass];
             stunned = 0;
-            ranks = Program.GetNextHeroRank();
+            ranks = HeroRankManager.GetNextHeroRank();
             combat_ready = false;
             damage_source = "";
             damage_source_type = 0;
